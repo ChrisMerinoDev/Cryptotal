@@ -13,9 +13,10 @@ export async function fetcher<T>(
   params?: QueryParams,
   revalidate = 60,
 ): Promise<T> {
+  const cleanedEndpoint = endpoint.replace(/^\/+/, '');
   const url = qs.stringifyUrl(
     {
-      url: `${BASE_URL}/${endpoint}`,
+      url: `${BASE_URL}/${cleanedEndpoint}`,
       query: params,
     },
     { skipEmptyString: true, skipNull: true },
@@ -53,7 +54,7 @@ export async function getPools(
   if (network && contractAddress) {
     try {
       const poolData = await fetcher<{ data: PoolData[] }>(
-        `/networks/${network}/tokens/${contractAddress}/pools`,
+        `onchain/networks/${network}/tokens/${contractAddress}/pools`,
       );
 
       return poolData.data?.[0] ?? fallback;
@@ -64,7 +65,7 @@ export async function getPools(
   }
 
   try {
-    const poolData = await fetcher<{ data: PoolData[] }>('/search/pools', { query: id });
+    const poolData = await fetcher<{ data: PoolData[] }>('onchain/search/pools', { query: id });
 
     return poolData.data?.[0] ?? fallback;
   } catch {
